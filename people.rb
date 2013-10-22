@@ -51,3 +51,8 @@ puts instructor.teach
 puts "Student Learning"
 puts "----------------------"
 puts student.learn
+
+=begin
+puts student.teach
+This doesn't work because the teach method is within the Instructor class which is inaccessible to the Student class.
+=end
