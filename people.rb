@@ -1,4 +1,4 @@
-#Question 5
+#Question 4,5
 
 class Person
   def initialize(name)
@@ -27,13 +27,11 @@ class Instructor < Person
   end
 end
 
-#Question 4
-
-
 #Question 6
 
 instructor = Instructor.new("Chris")
 puts "Instructor Greeting"
+puts "----------------------"
 puts instructor.greet
 
 
@@ -41,10 +39,15 @@ puts instructor.greet
 
 student = Student.new("Cristina")
 puts "Student Greeting"
+puts "----------------------"
 puts student.greet
 
 #Question 8
 
-
+puts "Instructor Teaching"
+puts "----------------------"
 puts instructor.teach
+
+puts "Student Learning"
+puts "----------------------"
 puts student.learn
