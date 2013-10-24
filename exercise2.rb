@@ -30,7 +30,7 @@ class Exempt < Product
   end
 end
 
-class Imported  < Product
+class Imported < Product
   def tax_rate
     super + 0.05  
   end
@@ -56,7 +56,7 @@ class Receipt
     return sales_tax_total
   end
 
-  def total
+  def final_total
     total = 0
     @products.each do |x|
       total += x.total_price
@@ -64,14 +64,14 @@ class Receipt
     return total
   end
 
-  def print_totals
+  def final_output
     @products.each do |x| 
       puts "#{x.quantity} #{x.name} : $#{x.price}"
     end
     puts "------------------------------------------\n"
     puts "Sales Taxes: $#{sprintf('%.2f', salestax_cal)}"
     puts "------------------------------------------\n"
-    puts "Total: $#{sprintf('%.2f', total)}"
+    puts "Total: $#{sprintf('%.2f', final_total)}"
   end
 end
 
@@ -92,10 +92,10 @@ order3 = Receipt.new(i_perf, perf, pills, i_choco)
 puts "\n"
 puts "Order 1"
 puts "====================\n\n"
-puts order1.print_totals
+puts order1.final_output
 puts "Order 2"
 puts "====================\n\n"
-puts order2.print_totals
+puts order2.final_output
 puts "Order 3"
 puts "====================\n\n"
-puts order3.print_totals
+puts order3.final_output
