@@ -5,18 +5,6 @@ module TaxCalc
   TAX = 0.10
   IMPORT = 0.05
 
-#normal item tax
-
-  def tax(price)
-    price * TAX
-  end
-
-#import item tax
-
-  def i_tax(price)
-    price * IMPORT
-  end
-
 end
 
 #calculator
@@ -49,8 +37,22 @@ class Calculator
     end 
   end
 
+#   #normal item tax
+
+#   def tax(price)
+#     @price * TaxCalc::TAX
+#   end
+
+# #import item tax
+
+#   def i_tax(price)
+#     @price * TaxCalc::IMPORT
+#   end
+
+@just_tax = 0.0
+
   def tax_amount
-    just_tax = @price * @tax_type
+    @just_tax = @price * @tax_type
   end
 
 end
@@ -60,6 +62,7 @@ end
 hash = Hash.new 
 @item_num = 0
 @continue = true
+@just_tax = 0.0
 
 if @continue == true #will continue user prompt as long as it is true
 
@@ -97,6 +100,10 @@ if @continue == true #will continue user prompt as long as it is true
 end
 
 #Receipt Printout
+
+puts @just_tax
+puts @price
+puts @tax_type
 
 total = 0.0
 
