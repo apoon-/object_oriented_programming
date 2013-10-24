@@ -43,7 +43,6 @@ class ImportedExempt < Exempt
 end
 
 class Receipt
-  attr_accessor :products
 
   def initialize(*products)
      @products = products
@@ -51,23 +50,23 @@ class Receipt
 
   def salestax_cal
     sales_tax_total = 0
-    @products.each do |p|    
-      sales_tax_total += p.sales_tax 
+    @products.each do |x|    
+      sales_tax_total += x.sales_tax 
     end
     return sales_tax_total
   end
 
   def total
     total = 0
-    @products.each do |p|
-      total += p.total_price
+    @products.each do |x|
+      total += x.total_price
     end
     return total
   end
 
   def print_totals
-    @products.each do |p| 
-      puts "#{p.quantity} #{p.name} : $#{p.price}"
+    @products.each do |x| 
+      puts "#{x.quantity} #{x.name} : $#{x.price}"
     end
     puts "------------------------------------------\n"
     puts "Sales Taxes: $#{sprintf('%.2f', salestax_cal)}"
@@ -83,12 +82,12 @@ book = Exempt.new(1, "Book", 12.49)
 choco = Exempt.new(1, "Chocolate Bar", 0.85)
 pills = Exempt.new(1, "Headache Pills", 9.75)
 
-imported_chocolates = ImportedExempt.new(1, "Imported Chocolate", 10.50)
-imported_perfume = Imported.new(1, "Imported Perfume", 54.65)
+i_choco = ImportedExempt.new(1, "Imported Chocolate", 10.50)
+i_perf = Imported.new(1, "Imported Perfume", 54.65)
 
 order1 = Receipt.new(book, cd, choco)
-order2 = Receipt.new(imported_chocolates, imported_perfume)
-order3 = Receipt.new(imported_perfume, perf, pills, imported_chocolates)
+order2 = Receipt.new(i_choco, i_perf)
+order3 = Receipt.new(i_perf, perf, pills, i_choco)
 
 puts "\n"
 puts "Order 1"
