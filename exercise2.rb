@@ -1,122 +1,102 @@
-#module for tax constants
+class Product 
+  attr_accessor(:quantity, :name, :price)
 
-module TaxCalc
-
-  TAX = 0.10
-  IMPORT = 0.05
-
-end
-
-#calculator
-
-class Calculator
-
-#importing TaxCalc methods & constants
-
-  include TaxCalc
-
-  attr_accessor :item, :price, :import, :exempt
-
-  def initialize(item, price=0.00, import=false, exempt)
-    @item = item
+  def initialize(quantity, name, price)
+    @quantity = quantity
+    @name = name
     @price = price
-    @import = import
-    @exempt = exempt
-  end 
-
-  def tax_type_finder
-    case 
-      when @exempt == false && @import == false
-        @tax_type = TaxCalc::TAX
-      when @exempt == true && @import == false
-        @tax_type = 0
-      when @exempt == false && @import == true
-        @tax_type = TaxCalc::IMPORT + TaxCalc::TAX
-      else      
-        @tax_type = TaxCalc::IMPORT
-    end 
   end
 
-#   #normal item tax
-
-#   def tax(price)
-#     @price * TaxCalc::TAX
-#   end
-
-# #import item tax
-
-#   def i_tax(price)
-#     @price * TaxCalc::IMPORT
-#   end
-
-@just_tax = 0.0
-
-  def tax_amount
-    @just_tax = @price * @tax_type
+  def tax_rate
+    0.10
   end
 
+  def subtotal
+    quantity * @price 
+  end
+
+  def sales_tax        
+    subtotal * tax_rate
+  end
+
+  def total_price
+    subtotal + sales_tax
+  end
 end
 
-#User Interface
+class Exempt < Product
+  def tax_rate
+    0
+  end
+end
 
-hash = Hash.new 
-@item_num = 0
-@continue = true
-@just_tax = 0.0
+class Imported  < Product
+  def tax_rate
+    super + 0.05  
+  end
+end
 
-if @continue == true #will continue user prompt as long as it is true
+class ImportedExempt < Exempt
+  def tax_rate
+     super + 0.05
+  end
+end
 
- @item_num+=1 #count number of items 
+class Receipt
+  attr_accessor :products
 
-  puts "Please enter the NAME of the item you wish to purchase:"
-    i_name = gets.chomp
+  def initialize(*products)
+     @products = products
+  end
 
-#look for exempt cases
-    if i_name == "book" || i_name == "chocolate bar" || i_name == "headache pills"
-      @exempt = true
-    else 
-      @exempt = false
+  def salestax_cal
+    sales_tax_total = 0
+    @products.each do |p|    
+      sales_tax_total += p.sales_tax 
     end
+    return sales_tax_total
+  end
 
-  puts "Please enter the PRICE of the item you wish to purchase:"
-    i_price = gets.chomp.to_f
-  puts "Is the item you wish to purchase IMPORTED (yes/no):"
-    i_import = gets.chomp
-    i_import = i_import.downcase
+  def total
+    total = 0
+    @products.each do |p|
+      total += p.total_price
+    end
+    return total
+  end
 
-  hash["item#{@item_num}"] = Calculator.new i_name, i_price, i_import
-
-    puts "Do you wish to purchase ANOTHER item (yes/no)?"
-      u_continue = gets.chomp 
-      u_continue = u_continue.downcase
-
-    #determine continue user prompt
-    if u_continue == "yes"
-      @continue = true
-      puts "------------------------\n"
-    else
-      @continue = false
-    end 
+  def print_totals
+    @products.each do |p| 
+      puts "#{p.quantity} #{p.name} : $#{p.price}"
+    end
+    puts "------------------------------------------\n"
+    puts "Sales Taxes: $#{sprintf('%.2f', salestax_cal)}"
+    puts "------------------------------------------\n"
+    puts "Total: $#{sprintf('%.2f', total)}"
+  end
 end
 
-#Receipt Printout
+cd = Product.new(1, "CD", 14.99)
+perf = Product.new(1, "Perfume", 20.89)
 
-puts @just_tax
-puts @price
-puts @tax_type
+book = Exempt.new(1, "Book", 12.49)
+choco = Exempt.new(1, "Chocolate Bar", 0.85)
+pills = Exempt.new(1, "Headache Pills", 9.75)
 
-total = 0.0
+imported_chocolates = ImportedExempt.new(1, "Imported Chocolate", 10.50)
+imported_perfume = Imported.new(1, "Imported Perfume", 54.65)
 
-hash.each { |k,v| 
+order1 = Receipt.new(book, cd, choco)
+order2 = Receipt.new(imported_chocolates, imported_perfume)
+order3 = Receipt.new(imported_perfume, perf, pills, imported_chocolates)
 
-@taxtotal += v.tax_amount
-total = @price+v.tax_amount
-
-puts "1 x #{v::name} : #{@price+v.tax_amount}"
-
-}
-puts "----------------\n"
-puts "Taxes: #{@taxtotal}"
-puts "================\n"
-puts "Total: #{total}"
-    
+puts "\n"
+puts "Order 1"
+puts "====================\n\n"
+puts order1.print_totals
+puts "Order 2"
+puts "====================\n\n"
+puts order2.print_totals
+puts "Order 3"
+puts "====================\n\n"
+puts order3.print_totals
