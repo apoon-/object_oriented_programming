@@ -2,8 +2,8 @@
 
 module TaxCalc
 
-  TAX == 0.10
-  IMPORT == 0.05
+  TAX = 0.10
+  IMPORT = 0.05
 
 #normal item tax
 
@@ -19,9 +19,9 @@ module TaxCalc
 
 end
 
-#working shopping cart class
+#calculator
 
-class Cart
+class Calculator
 
 #importing TaxCalc methods & constants
 
@@ -29,7 +29,7 @@ class Cart
 
   attr_accessor :item, :price, :import, :exempt
 
-  def initialize(item, price, import=false, exempt)
+  def initialize(item, price=0.00, import=false, exempt)
     @item = item
     @price = price
     @import = import
@@ -39,42 +39,37 @@ class Cart
   def tax_type_finder
     case 
       when @exempt == false && @import == false
-        tax_type = TaxCalc::TAX
+        @tax_type = TaxCalc::TAX
       when @exempt == true && @import == false
-        tax_type = 0
+        @tax_type = 0
       when @exempt == false && @import == true
-        tax_type = TaxCalc::IMPORT + TaxCalc::TAX
+        @tax_type = TaxCalc::IMPORT + TaxCalc::TAX
       else      
-        tax_type = TaxCalc::IMPORT
+        @tax_type = TaxCalc::IMPORT
     end 
   end
 
   def tax_amount
-    just_tax = @price * tax_type
+    just_tax = @price * @tax_type
   end
 
 end
 
 #User Interface
 
-hash = []
-item_num = 0
+hash = Hash.new 
+@item_num = 0
+@continue = true
 
-if continue == true #will continue user prompt as long as it is true
+if @continue == true #will continue user prompt as long as it is true
 
- item_num+=1
+ @item_num+=1 #count number of items 
 
   puts "Please enter the NAME of the item you wish to purchase:"
     i_name = gets.chomp
 
 #look for exempt cases
-    if i_name.include? "book" = true
-      @exempt = true
-    elsif i_name.include? "bar" = true
-      @exempt = true
-    elsif i_name.include? "chocolate" = true
-      @exempt = true
-    elsif i_name.include? "pills" = true
+    if i_name == "book" || i_name == "chocolate bar" || i_name == "headache pills"
       @exempt = true
     else 
       @exempt = false
@@ -86,7 +81,7 @@ if continue == true #will continue user prompt as long as it is true
     i_import = gets.chomp
     i_import = i_import.downcase
 
-  hash["item#{item_num}"] = Cart.new i_name, i_price, i_import
+  hash["item#{@item_num}"] = Calculator.new i_name, i_price, i_import
 
     puts "Do you wish to purchase ANOTHER item (yes/no)?"
       u_continue = gets.chomp 
@@ -94,27 +89,27 @@ if continue == true #will continue user prompt as long as it is true
 
     #determine continue user prompt
     if u_continue == "yes"
-      continue = true
+      @continue = true
       puts "------------------------\n"
     else
-      continue = false
+      @continue = false
     end 
 end
-
 
 #Receipt Printout
 
 total = 0.0
 
 hash.each { |k,v| 
-taxtotal += v.tax_amount
+
+@taxtotal += v.tax_amount
 total = @price+v.tax_amount
 
 puts "1 x #{v::name} : #{@price+v.tax_amount}"
 
 }
 puts "----------------\n"
-puts "Taxes: #{taxtotal}"
+puts "Taxes: #{@taxtotal}"
 puts "================\n"
 puts "Total: #{total}"
     
