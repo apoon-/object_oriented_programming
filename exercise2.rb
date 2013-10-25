@@ -1,26 +1,39 @@
-class Product 
-  attr_accessor(:quantity, :name, :price)
+module Round
+  def self.format_tax(amount)
+    return amount if (amount % 5) == 0
+    amount + 5 - (amount % 5)
+  end
 
+  def self.format_price(price)
+    sprintf("%.2f", price / 100.00)
+  end
+end
+
+class Product
   def initialize(quantity, name, price)
     @quantity = quantity
+    @price = price * 100
     @name = name
-    @price = price
+  end
+
+  def quantity_total
+    @quantity * @price
+  end
+
+  def sales_tax
+    Round.format_tax (quantity_total * tax_rate).ceil
+  end
+
+  def total
+    quantity_total + sales_tax
   end
 
   def tax_rate
     0.10
   end
 
-  def subtotal
-    quantity * @price 
-  end
-
-  def sales_tax        
-    subtotal * tax_rate
-  end
-
-  def total_price
-    subtotal + sales_tax
+  def to_s
+    "#{@quantity} #{@name} : #{Round.format_price(total)}"
   end
 end
 
@@ -30,72 +43,90 @@ class Exempt < Product
   end
 end
 
-class Imported < Product
+class Import < Product
   def tax_rate
-    super + 0.05  
+    super + 0.05
   end
 end
 
 class ImportedExempt < Exempt
   def tax_rate
-     super + 0.05
+    super + 0.05
   end
 end
 
-class Receipt
-
-  def initialize(*products)
-     @products = products
+class ShoppingCart
+  def initialize
+    @products = []
   end
 
-  def salestax_cal
-    sales_tax_total = 0
-    @products.each do |x|    
-      sales_tax_total += x.sales_tax 
-    end
-    return sales_tax_total
+  def add_item(product_string)
+    strings = product_string.split(" ")
+    quantity = strings[0].to_i
+    price = strings[-1].to_f
+    name = strings[1...-2].join(" ")
+
+    @products << product_factory(quantity, name, price)
   end
 
-  def final_total
-    total = 0
-    @products.each do |x|
-      total += x.total_price
-    end
-    return total
+  def receipt
+    calculate_final_total_and_tax
+
+    results = ""
+    @products.each {|product| results << "#{product.to_s}\n"}
+
+    results << "-----------------------\nSales Tax: #{Round::format_price(@sales_tax)}\n=======================\n"
+    results << "Total: #{Round::format_price(@total)}"
   end
 
-  def final_output
-    @products.each do |x| 
-      puts "#{x.quantity} #{x.name} : $#{x.price}"
+  private
+  def calculate_final_total_and_tax
+    @total = 0
+    @sales_tax = 0
+
+    @products.each do |product|
+      @sales_tax += product.sales_tax
+      @total += product.total
     end
-    puts "------------------------------------------\n"
-    puts "Sales Taxes: $#{sprintf('%.2f', salestax_cal)}"
-    puts "------------------------------------------\n"
-    puts "Total: $#{sprintf('%.2f', final_total)}"
+  end
+
+  def product_factory(quantity, name, price)
+    if name.include? ("imported box of chocolates")
+      ImportedExempt.new(quantity, name, price)
+    elsif name.include?("book") || name.include?("chocolate") || name.include?("pills")
+      Exempt.new(quantity, name, price)
+    elsif name.include?("imported")
+      Import.new(quantity, name, price)
+    else
+      Product.new(quantity, name, price)
+    end
   end
 end
 
-cd = Product.new(1, "CD", 14.99)
-perf = Product.new(1, "Perfume", 20.89)
+# exempt = books, food, medical
+# imported 
 
-book = Exempt.new(1, "Book", 12.49)
-choco = Exempt.new(1, "Chocolate Bar", 0.85)
-pills = Exempt.new(1, "Headache Pills", 9.75)
+cart = ShoppingCart.new
 
-i_choco = ImportedExempt.new(1, "Imported Chocolate", 10.50)
-i_perf = Imported.new(1, "Imported Perfume", 54.65)
-
-order1 = Receipt.new(book, cd, choco)
-order2 = Receipt.new(i_choco, i_perf)
-order3 = Receipt.new(i_perf, perf, pills, i_choco)
+cart.add_item "1 book at 12.49"
+cart.add_item "1 music CD at 14.99"
+cart.add_item "1 chocolate bar at 0.85"
+puts cart.receipt
 
 puts "\n"
-puts "Order 1"
-puts "====================\n\n"
-puts order1.final_output
-puts "Order 2"
-puts "====================\n\n"
-puts order2.final_output
-puts "Order 3"
-puts "====================\n\n"
-puts order3.final_output
+
+cart = ShoppingCart.new
+
+cart.add_item "1 imported box of chocolates at 10.00"
+cart.add_item "1 imported bottle of perfume at 47.50"
+puts cart.receipt
+
+puts "\n"
+
+cart = ShoppingCart.new
+
+cart.add_item "1 imported bottle of perfume at 27.99"
+cart.add_item "1 bottle of perfume at 18.99"
+cart.add_item "1 packet of headache pills at 9.75"
+cart.add_item "1 imported box of chocolates at 11.25"
+puts cart.receipt
