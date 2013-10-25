@@ -66,7 +66,7 @@ class ShoppingCart
     price = strings[-1].to_f
     name = strings[1...-2].join(" ")
 
-    @products << product_factory(quantity, name, price)
+    @products << product_sort(quantity, name, price)
   end
 
   def receipt
@@ -90,7 +90,7 @@ class ShoppingCart
     end
   end
 
-  def product_factory(quantity, name, price)
+  def product_sort(quantity, name, price)
     if name.include? ("imported box of chocolates")
       ImportedExempt.new(quantity, name, price)
     elsif name.include?("book") || name.include?("chocolate") || name.include?("pills")
